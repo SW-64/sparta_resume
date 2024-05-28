@@ -19,44 +19,27 @@ model User {
   userId   Int     @id @default(autoincrement()) @map("userId")
   email String  @unique @map("email")
   password       String     @map("password")
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
-  userInfo UserInfo?
-  resume Resume?
-
-  @@map("User")
-}
-model UserInfo {
-  userInfoId   Int     @id @default(autoincrement()) @map("userInfoId")
-  userId   Int  @unique   @map("userId")
-  name String  @unique @map("name")
+  name String   @map("name")
   role       String   @default("APPLICANT")  @map("role")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user     User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  @@map("UserInfo")
+  
+  resume Resume[]
+
+  @@map("User")
 }
+
 model Resume {
   resumeId   Int     @id @default(autoincrement()) @map("resumeId")
-  userId   Int   @unique  @map("userId")
+  userId   Int     @map("userId")
+  title       String     @map("title")
+  introduce       String     @map("introduce")
   status String  @default("APPLY") @map("status")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   user     User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  resumeInfo ResumeInfo?
+  
   @@map("Resume")
-}
-model ResumeInfo {
-  ResumeInfoId   Int     @id @default(autoincrement()) @map("ResumeInfoId")
-  resumeId   Int    @unique @map("resumeId")
-  title       String     @map("title")
-  introduce       String     @map("introduce")
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
-
-  resume     Resume    @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
-  @@map("ResumeInfo")
 }
