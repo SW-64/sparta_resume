@@ -4,14 +4,12 @@ import { prisma } from '../routes/index.js';
 
 const authMiddleware = async (req, res, next) => {
     try {
+        //1. 요청정ㅇ보
+        // AccessToken을 Request Header의 Authorization 값으로 전달받기
+        const accesstoken = req.headers['cookie'];
 
         //2. 유효성 검증 및 에러처리
         // Authorization 또는 AccessToken이 없는 경우 - “인증 정보가 없습니다.”
-
-
-        const accesstoken = req.headers['cookie'];
-
-
         if (!accesstoken) throw new Error('토큰이 존재하지 않습니다.');
 
         //JWT 표준 인증 형태와 일치하지 않는 경우 - “지원하지 않는 인증 방식입니다.”
@@ -28,7 +26,7 @@ const authMiddleware = async (req, res, next) => {
         const user = await prisma.User.findFirst({
             where: { userId: +userId },
         });
-        console.log(user);
+
 
         if (!user) {
             res.clearCookie('authorization');

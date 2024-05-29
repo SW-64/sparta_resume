@@ -155,7 +155,8 @@ router.put('/resume/:resumeId', authMiddleware, async (req, res, next) => {
     // DB에서 이력서 조회 시 이력서 ID, 작성자 ID가 모두 일치해야 합니다.
     const userInfo = await prisma.Resume.findFirst({
         where: {
-            userId: +userId
+            userId: +userId,
+            resumeId: +resumeId
         }
     });
     if (!userInfo) return res.status(409).json({ message: "작성자 아이디가 일치하지 않습니다." });
@@ -194,7 +195,8 @@ router.delete('/resume/:resumeId', authMiddleware, async (req, res, next) => {
     // DB에서 이력서 조회 시 이력서 ID, 작성자 ID가 모두 일치해야 합니다.
     const userInfo = await prisma.Resume.findFirst({
         where: {
-            userId: +userId
+            userId: +userId,
+            resumeId: +resumeId
         }
     });
     if (!userInfo) return res.status(409).json({ message: "작성자 아이디가 일치하지 않습니다." });

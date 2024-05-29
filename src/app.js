@@ -13,7 +13,7 @@ app.use(express.json());
 app.use('/api', [UsersRouter, ResumeRouter]);
 
 app.get('/', (req, res) => {
-    res.send('Star World!');
+    res.send('Staraaaaaaa World!');
 });
 
 app.listen(PORT, () => {

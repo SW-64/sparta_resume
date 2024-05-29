@@ -31,7 +31,6 @@ router.post('/sign-up', async (req, res, next) => {
     }
 
     // 이메일 형식에 맞지 않는 경우 - “이메일 형식이 올바르지 않습니다.”
-    //  ex) aaaa@naver.com 1. @가 들어있는지? 2. .com으로 끝나는지?
     if (!emailCheck(email)) {
         return res.status(409).json({ message: "이메일 형식이 올바르지 않습니다." });
     }
@@ -69,7 +68,14 @@ router.post('/sign-up', async (req, res, next) => {
     // 사용자 ID, 이메일, 이름, 역할, 생성일시, 수정일시를 반환합니다.
 
     //return res.status(201).json({ data: userInfo });
-    return res.status(201).json({ message: "성공" });
+    return res.status(201).json({
+        userId: user.userId,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+    });
 
 });
 
@@ -79,7 +85,7 @@ router.post('/sign-up', async (req, res, next) => {
 router.post('/sign-in', async (req, res, next) => {
     // 1. 요청 정보 - 이메일, 비밀번호를 Request Body(req.body)로 전달 받습니다.
     const { email, password } = req.body;
-    const user = await prisma.User.findFirst({ where: { email } });
+
     // 2. 유효성 검증 및 에러 처리
     // 로그인 정보 중 하나라도 빠진 경우 - “OOO을 입력해 주세요.”
     /*
@@ -92,44 +98,24 @@ router.post('/sign-in', async (req, res, next) => {
         return res.status(409).json({ message: "이메일 형식이 올바르지 않습니다." });
     }
     // 이메일로 조회되지 않거나 비밀번호가 일치하지 않는 경우 - “인증 정보가 유효하지 않습니다.”
-    const isExistEmail = await prisma.User.findFirst({
-        where: {
-            email,
-        },
-    });
-    if (!isExistEmail) return res.status(409).json({ message: "조회되는 이메일이 없습니다." });
+    const user = await prisma.User.findFirst({ where: { email } });
+    if (!user) return res.status(409).json({ message: "조회되는 이메일이 없습니다." });
+
     else if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ message: '비밀번호가 일치하지 않습니다.' });
-    const CustomSecretKey = `sparta`;
+
     // 3. 비즈니스 로직(데이터 처리)
     // AccessToken(Payload에 **사용자 ID**를 포함하고, 유효기한이 **12시간)**을 생성합니다.
     const token = jwt.sign(
         {
             userId: user.userId,
 
-
         },
-        CustomSecretKey,
+        process.env.CustomSecretKey,
 
         { expiresIn: '12h' }
 
     );
-    // const url = 'api/users'; // API endpoint URL
 
-
-    // fetch(url, {
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': `Bearer ${token}`
-    //     }
-    // })
-    //     .then(response => response.json())
-    //     .then(data => console.log(data))
-    //     .catch((error) => {
-    //         console.error('Error:', error);
-    //     });
-    // 4. 반환정보
-    // AccessToken을 반환합니다.
     res.cookie('authorization', `Bearer ${token}`);
 
     return res.status(200).json({ token });
@@ -140,7 +126,6 @@ router.post('/sign-in', async (req, res, next) => {
 /** 사용자 조회 API **/
 router.get('/users', authMiddleware, async (req, res, next) => {
     const user = req.user;
-    console.log("hello");
     res.status(200).json({
         id: user.userId,
         email: user.email,
@@ -149,22 +134,7 @@ router.get('/users', authMiddleware, async (req, res, next) => {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
     });
-    // const user = await prisma.UserInfo.findFirst({
-    //     where: { userId: +userId },
-    //     select: {
-    //         userId: true,
-    //         email: true,
-    //         UserInfo: {
-    //             // 1:1 관계를 맺고있는 UserInfos 테이블을 조회합니다.
-    //             select: {
-    //                 name: true,
-    //                 role: true,
-    //                 createdAt: true,
-    //                 updatedAt: true,
-    //             },
-    //         },
-    //     },
-    // });
+
 
     return res.status(200).json({ data: user });
 });
